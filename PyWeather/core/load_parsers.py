@@ -11,10 +11,7 @@ def _get_parser_list(dirname):
 
 def _import_parsers(parserfiles):
      m = re.compile('.+parser$', re.I)
-     _modules = __import__('PyWeather.parsers',
-     globals(),
-     locals(),
-     parserfiles, 0)
+     _modules = __import__('PyWeather.parsers', globals(), locals(), parserfiles, 0)
      _parsers = [(k, v) for k, v in inspect.getmembers(_modules)
      if inspect.ismodule(v) and m.match(k)]
      _classes = dict()

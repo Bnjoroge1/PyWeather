@@ -24,10 +24,10 @@ class WeatherComParser:
      def _get_data(self, container, search_items):
           scraped_data = {}
           for key, value in search_items.items():
-               results = container.find(value, class=key)
+               results = container.find(value, class_ = key)
                data = None if results is None else results.get_text()
                if data is not None:
-                    scraped_data.get(key) = data
+                    scraped_data[key] = data
           return scraped_data
      def _parse(self, container, criteria):
           """
@@ -59,20 +59,27 @@ class WeatherComParser:
           bs4_object = BeautifulSoup(content, 'html.parser')
 
           container = bs4_object.find('section', class_='today_nowcardcontainer')
+         
           weather_conditions = self._parse(container, criteria) 
-
+         
+          side_info = container.find('div', class_ = 'today_nowcard-sidecar')
+         
           if len(weather_conditions) < 1:
                raise Exception('Could not parse weather foreecast for today.')
 
           weatherinfo = weather_conditions[0]
 
           temp_regex = re.compile(('H\s+(\d+|\-{,2}).+ L\s+(\d+|\-{,2})'))
-          
+
           temp_info = temp_regex.search(weatherinfo['today_nowcardhilo'])
           high_temp, low_temp = temp_info.groups()
+
           side = container.find('div', class_='today_nowcard-sidecar')
+
           humidity, wind = self._get_additional_info(side)
+
           curr_temp = self._clear_str_number(weatherinfo['today_nowcard-temp'])
+
           self._unit_converter.dest_unit = args.unit
           td_forecast = Forecast(self._unit_converter.convert(curr_temp),
           humidity,
@@ -80,10 +87,9 @@ class WeatherComParser:
           high_temp=self._unit_converter.convert(high_temp),
           low_temp=self._unit_converter.convert(low_temp),
           description=weatherinfo['today_nowcard-phrase'])
+          
           return [td_forecast]
 
-
-          raise NotImplementedError()
 
      def _five_and_ten_days_forecast(self, args):
           raise NotImplementedError()
